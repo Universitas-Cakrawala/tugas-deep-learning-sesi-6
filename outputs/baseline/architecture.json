@@ -1,0 +1,205 @@
+[
+  {
+    "layer": "conv1",
+    "input_shape": [
+      3,
+      64,
+      64
+    ],
+    "manual_output_shape": [
+      16,
+      64,
+      64
+    ],
+    "manual_parameters": 448,
+    "framework_output_shape": [
+      16,
+      64,
+      64
+    ],
+    "framework_parameters": 448,
+    "verified": true
+  },
+  {
+    "layer": "relu1",
+    "input_shape": [
+      16,
+      64,
+      64
+    ],
+    "manual_output_shape": [
+      16,
+      64,
+      64
+    ],
+    "manual_parameters": 0,
+    "framework_output_shape": [
+      16,
+      64,
+      64
+    ],
+    "framework_parameters": 0,
+    "verified": true
+  },
+  {
+    "layer": "pool1",
+    "input_shape": [
+      16,
+      64,
+      64
+    ],
+    "manual_output_shape": [
+      16,
+      32,
+      32
+    ],
+    "manual_parameters": 0,
+    "framework_output_shape": [
+      16,
+      32,
+      32
+    ],
+    "framework_parameters": 0,
+    "verified": true
+  },
+  {
+    "layer": "conv2",
+    "input_shape": [
+      16,
+      32,
+      32
+    ],
+    "manual_output_shape": [
+      32,
+      32,
+      32
+    ],
+    "manual_parameters": 4640,
+    "framework_output_shape": [
+      32,
+      32,
+      32
+    ],
+    "framework_parameters": 4640,
+    "verified": true
+  },
+  {
+    "layer": "relu2",
+    "input_shape": [
+      32,
+      32,
+      32
+    ],
+    "manual_output_shape": [
+      32,
+      32,
+      32
+    ],
+    "manual_parameters": 0,
+    "framework_output_shape": [
+      32,
+      32,
+      32
+    ],
+    "framework_parameters": 0,
+    "verified": true
+  },
+  {
+    "layer": "pool2",
+    "input_shape": [
+      32,
+      32,
+      32
+    ],
+    "manual_output_shape": [
+      32,
+      16,
+      16
+    ],
+    "manual_parameters": 0,
+    "framework_output_shape": [
+      32,
+      16,
+      16
+    ],
+    "framework_parameters": 0,
+    "verified": true
+  },
+  {
+    "layer": "flatten",
+    "input_shape": [
+      32,
+      16,
+      16
+    ],
+    "manual_output_shape": [
+      8192
+    ],
+    "manual_parameters": 0,
+    "framework_output_shape": [
+      8192
+    ],
+    "framework_parameters": 0,
+    "verified": true
+  },
+  {
+    "layer": "dense",
+    "input_shape": [
+      8192
+    ],
+    "manual_output_shape": [
+      64
+    ],
+    "manual_parameters": 524352,
+    "framework_output_shape": [
+      64
+    ],
+    "framework_parameters": 524352,
+    "verified": true
+  },
+  {
+    "layer": "relu3",
+    "input_shape": [
+      64
+    ],
+    "manual_output_shape": [
+      64
+    ],
+    "manual_parameters": 0,
+    "framework_output_shape": [
+      64
+    ],
+    "framework_parameters": 0,
+    "verified": true
+  },
+  {
+    "layer": "dropout",
+    "input_shape": [
+      64
+    ],
+    "manual_output_shape": [
+      64
+    ],
+    "manual_parameters": 0,
+    "framework_output_shape": [
+      64
+    ],
+    "framework_parameters": 0,
+    "verified": true
+  },
+  {
+    "layer": "output",
+    "input_shape": [
+      64
+    ],
+    "manual_output_shape": [
+      1
+    ],
+    "manual_parameters": 65,
+    "framework_output_shape": [
+      1
+    ],
+    "framework_parameters": 65,
+    "verified": true
+  }
+]

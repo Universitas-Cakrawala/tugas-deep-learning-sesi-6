@@ -1,0 +1,37 @@
+{
+  "root": "/home/titan/github/tugas-deep-learning-sesi-6/data/PetImages",
+  "discovered_per_class": {
+    "Cat": 12500,
+    "Dog": 12500
+  },
+  "decoded_count": 24998,
+  "usable_per_class": {
+    "Cat": 12480,
+    "Dog": 12486
+  },
+  "usable_count": 24966,
+  "corrupt_count": 2,
+  "duplicate_count": 26,
+  "conflicting_label_count": 6,
+  "ignored_count": 2,
+  "original_modes": {
+    "RGB": 24931,
+    "P": 57,
+    "L": 5,
+    "RGBA": 2,
+    "CMYK": 3
+  },
+  "original_width": {
+    "min": 4,
+    "max": 500,
+    "median": 448.0
+  },
+  "original_height": {
+    "min": 4,
+    "max": 500,
+    "median": 375.0
+  },
+  "unique_sizes": 7514,
+  "warning_count": 2,
+  "duplicate_policy": "deduplikasi piksel RGB setelah koreksi EXIF; near-duplicate belum terdeteksi"
+}

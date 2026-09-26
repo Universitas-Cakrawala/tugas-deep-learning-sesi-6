@@ -1,0 +1,23 @@
+{
+  "total_errors": 767,
+  "examples": [
+    {
+      "path": "Cat/10181.jpg",
+      "actual": "Cat",
+      "predicted": "Dog",
+      "probability_dog": 0.728952169418335
+    },
+    {
+      "path": "Cat/1947.jpg",
+      "actual": "Cat",
+      "predicted": "Dog",
+      "probability_dog": 0.6264294385910034
+    },
+    {
+      "path": "Cat/8414.jpg",
+      "actual": "Cat",
+      "predicted": "Dog",
+      "probability_dog": 0.6009729504585266
+    }
+  ]
+}

@@ -1,2 +1,9 @@
 .venv
 981bb4f8-fd8f-4633-b119-bc58967e18e4_dl006.pdf
+__pycache__/
+*.pyc
+data/
+outputs/*/*.pt
+outputs/*/splits.json
+outputs/*/dataset_audit.json
+outputs/*/test_predictions.csv
