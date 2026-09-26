@@ -1,0 +1,26 @@
+{
+  "total_errors": 767,
+  "examples": [
+    {
+      "path": "Cat/10181.jpg",
+      "actual": "Cat",
+      "predicted": "Dog",
+      "probability_dog": 0.728952169418335,
+      "interpretation": "Gambar berisi kucing di depan sekaligus anjing yang cukup besar di belakang. Prediksi Dog sesuai keberadaan anjing dalam citra, walaupun label folder adalah Cat. Ini menunjukkan ambiguitas label biner untuk citra dengan dua kelas sekaligus; kesalahan terhadap label folder belum tentu berarti model gagal mengenali objek"
+    },
+    {
+      "path": "Cat/1947.jpg",
+      "actual": "Cat",
+      "predicted": "Dog",
+      "probability_dog": 0.6264294385910034,
+      "interpretation": "Kucing berbaring dengan kepala menengadah, mulut terbuka, dan satu kaki terangkat di dekat wajah. Pose ini membuat kontur wajah dan telinga berbeda dari tampak depan yang umum. Corak tubuh dan karpet juga saling menyerupai; resize ke 64×64 dapat mengurangi detail wajah. Pose dan tekstur merupakan kemungkinan penyebab, bukan sebab yang telah dibuktikan melalui analisis aktivasi"
+    },
+    {
+      "path": "Cat/8414.jpg",
+      "actual": "Cat",
+      "predicted": "Dog",
+      "probability_dog": 0.6009729504585266,
+      "interpretation": "Ada dua kucing, dengan kucing kiri sebagian tertutup kucing di depan. Background memuat banyak daun, bunga, pot, pagar, dan selang. Pada representasi 64×64, detail wajah dan batas objek dapat kurang jelas dibandingkan tekstur background. Kompleksitas scene dan kehilangan detail merupakan hipotesis visual; gambar tetap memiliki ciri kucing yang terlihat sehingga penyebab keputusan model belum dapat dipastikan"
+    }
+  ]
+}
