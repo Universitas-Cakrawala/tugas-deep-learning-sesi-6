@@ -1,6 +1,6 @@
 """Praktikum CNN Cat/Dog: audit, split, training, evaluasi, dan laporan.
 
-Jalankan: python train.py --data-dir data/PetImages --output-dir outputs/baseline
+Jalankan: python train.py --data-dir data/PetImages --output-dir outputs/run
 Seluruh shape tensor menggunakan urutan PyTorch N,C,H,W.
 """
 from __future__ import annotations
@@ -478,14 +478,17 @@ def write_report(output: Path, config: dict, audit: dict, rows: list[dict],
              "Model hanya memakai squeeze(1) sehingga batch terakhir berukuran satu tetap berbentuk N. "
              "Label selain 0/1 dan logit NaN/Inf memicu error. File rusak diverifikasi dengan verify() lalu decode/load penuh sebelum split; "
              "file gagal dicatat dan dikeluarkan, tanpa mengaktifkan LOAD_TRUNCATED_IMAGES atau mengubah file asli.\n\n")
-    text += "## Jawaban pertanyaan analisis\n\nJawaban hanya nomor **1 dan 2** tersedia di [ANALISIS.md](../../ANALISIS.md). Nomor 3–6 disediakan untuk dikerjakan anggota kelompok lain.\n"
+    analysis_file = Path(__file__).resolve().with_name("ANALISIS.md")
+    analysis_link = Path(os.path.relpath(analysis_file, output)).as_posix()
+    text += ("## Jawaban pertanyaan analisis\n\nJawaban hanya nomor **1 dan 2** tersedia di "
+             f"[ANALISIS.md](<{analysis_link}>). Nomor 3–6 disediakan untuk dikerjakan anggota kelompok lain.\n")
     (output / "laporan.md").write_text(text, encoding="utf-8")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, default=Path("data/PetImages"))
-    parser.add_argument("--output-dir", type=Path, default=Path("outputs/baseline"))
+    parser.add_argument("--output-dir", type=Path, default=Path("outputs/run"))
     parser.add_argument("--image-size", type=int, default=64)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--epochs", type=int, default=8)

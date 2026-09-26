@@ -12,10 +12,10 @@ source .venv/bin/activate
 python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -r requirements.txt
 python download_dataset.py
-python train.py --device cpu --output-dir outputs/baseline
+python train.py --device cpu --output-dir outputs/run
 ```
 
-Untuk GPU, pasang build PyTorch yang sesuai perangkat melalui petunjuk resmi PyTorch dan gunakan `--device cuda`. Direktori output harus kosong; pilih nama baru untuk setiap eksperimen agar hasil lama tidak tertimpa.
+Untuk GPU, pasang build PyTorch yang sesuai perangkat melalui petunjuk resmi PyTorch dan gunakan `--device cuda`. Hasil baru pada contoh perintah disimpan ke `outputs/run`, sedangkan hasil yang sudah dikumpulkan tersedia di `outputs/baseline`. Direktori output harus kosong; pilih nama baru untuk setiap eksperimen agar hasil lama tidak tertimpa.
 
 Dataset wajib: [Microsoft Cats vs Dogs oleh shaunthesheep di Kaggle](https://www.kaggle.com/datasets/shaunthesheep/microsoft-catsvsdogs-dataset). Script mengunduh versi 1 melalui API publik Kaggle. Jika endpoint membutuhkan autentikasi atau tidak tersedia, unduh ZIP dari halaman dataset lalu jalankan:
 
@@ -62,3 +62,5 @@ Manifest `splits.json`, audit rinci `dataset_audit.json`, prediksi `test_predict
 Baseline pada dataset asli selesai dalam **218,94 detik**, sebanyak 8 epoch. Checkpoint epoch **7** dipilih berdasarkan validation loss; validation accuracy **79,78%**, test accuracy **79,51%**, dan test macro F1 **0,7947** pada 3.744 gambar test. Tujuh pengujian integritas pipeline berhasil.
 
 Interpretasi tiga preview baseline sudah diisi. Untuk menyertakan catatan visual pada laporan eksperimen dengan split/model yang sama, gunakan `--interpretations-file outputs/baseline/misclassification_interpretations.json`; catatan hanya dimasukkan jika path contoh kesalahan cocok.
+
+[Review kesesuaian PDF](REVIEW.md) memetakan delapan instruksi praktik ke bukti implementasi dan mencatat hasil audit ulang serta perbaikan cara menjalankan.

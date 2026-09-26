@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -135,6 +136,12 @@ class PipelineTests(unittest.TestCase):
         for name in ("best_model.pt", "laporan.md", "metrics.json", "training_curves.png",
                      "confusion_matrix.png", "splits.json", "dataset_audit.json", "test_predictions.csv"):
             self.assertTrue((output / name).is_file(), name)
+        report = (output / "laporan.md").read_text()
+        analysis_links = re.findall(r"\[ANALISIS\.md\]\(([^)]+)\)", report)
+        self.assertEqual(len(analysis_links), 1)
+        target = (output / analysis_links[0].strip("<>")).resolve()
+        self.assertTrue(target.is_file(), f"Link analisis laporan tidak valid: {target}")
+        self.assertEqual(target, script.with_name("ANALISIS.md"))
         metrics = json.loads((output / "metrics.json").read_text())
         self.assertEqual(metrics["test"]["samples"], 2)
         checkpoint = torch.load(output / "best_model.pt", map_location="cpu", weights_only=True)
