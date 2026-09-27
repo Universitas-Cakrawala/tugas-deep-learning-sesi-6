@@ -64,15 +64,15 @@ Berdasarkan hasil aktual run `outputs/baseline` (arsitektur CNN 529.505 paramete
 
 Dari total 3.744 sampel test, model menghasilkan **767 kesalahan klasifikasi** (error rate ≈20,5%, konsisten dengan test accuracy 79,5%). Tiga contoh konkret yang diekspor sistem (`outputs/baseline/misclassified_examples.json`), semuanya kasus **Cat diprediksi sebagai Dog**:
 
-### 1. `Cat/10181.jpg` — probability Dog = 0,729 (kesalahan paling percaya diri)
+### 1. [`example_1.jpg`](https://github.com/Universitas-Cakrawala/tugas-deep-learning-sesi-6/blob/main/outputs/baseline/misclassified/example_1.jpg) (`Cat/10181.jpg`) — probability Dog = 0,729 (kesalahan paling percaya diri)
 
 Gambar berisi kucing di bagian depan, namun ada anjing berukuran cukup besar di latar belakang. Model kemungkinan mendeteksi fitur anjing yang justru dominan secara visual, sehingga prediksinya "salah" terhadap label folder tapi sebenarnya masuk akal terhadap konten citra. Ini menunjukkan **ambiguitas label** pada skema klasifikasi biner single-label untuk citra yang sebenarnya multi-objek sehingga bukan murni kegagalan model mengenali objek.
 
-### 2. `Cat/1947.jpg` — probability Dog = 0,626
+### 2. [`example_2.jpg`](https://github.com/Universitas-Cakrawala/tugas-deep-learning-sesi-6/blob/main/outputs/baseline/misclassified/example_2.jpg) (`Cat/1947.jpg`) — probability Dog = 0,626
 
 Kucing dalam pose tidak umum: berbaring, kepala menengadah, mulut terbuka, satu kaki terangkat dekat wajah. Pose ini mendistorsi kontur wajah dan telinga yang biasanya jadi fitur pembeda utama kucing vs anjing. Ditambah tekstur bulu yang menyatu dengan karpet di background, dan resize paksa ke 64×64 yang memangkas detail halus wajah. Kombinasi **pose non-frontal + resolusi rendah + background bertekstur mirip** adalah hipotesis penyebab, meski belum dibuktikan lewat analisis aktivasi/Grad-CAM.
 
-### 3. `Cat/8414.jpg` — probability Dog = 0,601
+### 3. [`example_3.jpg`](https://github.com/Universitas-Cakrawala/tugas-deep-learning-sesi-6/blob/main/outputs/baseline/misclassified/example_3.jpg) (`Cat/8414.jpg`) — probability Dog = 0,601
 
 Ada dua kucing dalam satu frame dengan satu kucing sebagian tertutup (occlusion) oleh kucing lain, ditambah background kompleks (daun, bunga, pot, pagar, selang). Pada resolusi 64×64, batas objek dan detail wajah kemungkinan tenggelam oleh tekstur background yang ramai, sehingga  **occlusion + scene clutter + downsampling** jadi kandidat penyebab.
 
