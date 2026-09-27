@@ -58,6 +58,62 @@ ReLU menambahkan nonlinieritas tanpa mengubah shape. Classifier menerima feature
 
 ---
 
+## 3. Hitung output shape dan parameter untuk input 32×32×3, 16 filter 3×3, padding 1, dan stride 1, lalu jelaskan hubungan contoh tersebut dengan preprocessing dataset.
+
+Menggunakan rumus yang sama dengan yang diimplementasikan pada `manual_architecture()` di [train.py](train.py), `Hout=floor((Hin+2P−K)/S)+1` (berlaku sama untuk W), dan `parameter=(K×K×Cin+1)×Cout` termasuk bias:
+
+- **Output shape**: `Hout = floor((32 + 2×1 − 3)/1) + 1 = floor(31) + 1 = 32`. Karena padding 1 dengan kernel 3 dan stride 1 adalah konfigurasi "same padding" (`P=(K−1)/2`), ukuran spasial tetap 32×32. Dengan 16 filter, output berbentuk **16×32×32** (C,H,W).
+- **Parameter**: `(3×3×3+1)×16 = (27+1)×16 = 448`.
+
+Perhitungan ini diverifikasi langsung terhadap PyTorch, bukan hanya manual, dengan menjalankan:
+
+```bash
+python train.py --shape-only --image-size 32
+```
+
+Hasil aktual (baris `conv1`): output manual `[16, 32, 32]` = output PyTorch, parameter manual `448` = parameter PyTorch — keduanya cocok, konsisten dengan cara `verify_architecture()` memvalidasi setiap layer melalui dummy forward sebelum training (Instruksi #4).
+
+**Hubungan dengan preprocessing dataset**: baseline repo ini tidak menggunakan 32×32, melainkan me-resize seluruh gambar Cat/Dog ke **64×64** (lihat `preprocess()` dan konfigurasi baseline di README). Menjalankan `python train.py --shape-only --image-size 64` menunjukkan conv1 tetap menghasilkan **448 parameter** — identik dengan hasil pada 32×32. Ini karena parameter konvolusi hanya bergantung pada ukuran kernel dan jumlah channel (bobot dibagi/shared di seluruh posisi spasial), **bukan** pada resolusi input; contoh soal 32×32×3 di atas berlaku dengan rumus persis sama seperti yang dipakai pipeline pada 64×64, hanya beda skala.
+
+Namun ukuran resize preprocessing tetap sangat berpengaruh — bukan pada conv1, melainkan pada **dense layer setelah flatten**. Dibandingkan langsung dari dua run aktual:
+
+| Ukuran input | Flatten (setelah 2× conv+pool) | Parameter dense | Total parameter model |
+|---|---:|---:|---:|
+| 32×32×3 (contoh soal) | 32×8×8 = 2.048 | (2.048+1)×64 = 131.136 | **136.289** |
+| 64×64×3 (baseline repo, `outputs/baseline/architecture.json`) | 32×16×16 = 8.192 | (8.192+1)×64 = 524.352 | **529.505** |
+
+Jadi keputusan resize pada tahap preprocessing (Instruksi #3) hampir tidak memengaruhi jumlah parameter conv1/conv2 (tetap 448 dan 4.640), tetapi mengubah total parameter model hampir 4× lipat karena efeknya berlipat pada dimensi flatten sebelum dense layer. Ini adalah alasan mengapa laporan wajib mencantumkan ukuran resize secara eksplisit dan menghitung shape/parameter "sebelum menjalankan model" (Instruksi #4): mismatch antara ukuran yang dilaporkan dan yang benar-benar dipakai akan mengubah total parameter secara signifikan tanpa terlihat dari conv layer saja.
+
+---
+
+## 4. Mengapa accuracy saja mungkin belum cukup untuk mengevaluasi klasifikasi Cat versus Dog, terutama jika jumlah gambar atau kesalahan antar-kelas tidak seimbang?
+
+Berdasarkan hasil aktual `outputs/baseline/metrics.json` (checkpoint epoch 7, test accuracy 79,51%, 3.744 sampel test dengan support seimbang 1.872 Cat / 1.872 Dog):
+
+**Dataset ini nyaris seimbang jumlah gambarnya** (audit: 12.480 Cat vs 12.486 Dog gambar unik valid; `outputs/baseline/audit_summary.json`), sehingga argumen klasik "trivial classifier menebak kelas mayoritas" tidak langsung berlaku di sini secara persis. Namun accuracy tunggal (79,51%) tetap menyembunyikan masalah penting: **kesalahan antar-kelas tidak seimbang**, meskipun jumlah gambarnya seimbang.
+
+Confusion matrix test aktual (baris = aktual, kolom = prediksi, urutan Cat, Dog):
+
+```
+              Prediksi Cat   Prediksi Dog
+Aktual Cat        1575           297
+Aktual Dog         470          1402
+```
+
+Dari sini, recall per kelas berbeda cukup jauh: **recall Cat = 1575/1872 = 0,8413**, sedangkan **recall Dog = 1402/1872 = 0,7489** — selisih 9,2 poin. Artinya 470 dari 1.872 gambar Dog (25,1%) salah diklasifikasikan sebagai Cat, sementara hanya 297 dari 1.872 gambar Cat (15,9%) salah diklasifikasikan sebagai Dog. Model ini secara sistematis lebih lemah mengenali Dog dibanding Cat — informasi yang sepenuhnya hilang jika hanya melaporkan satu angka accuracy 79,51%.
+
+Ironisnya, tiga contoh kesalahan yang didokumentasikan pada bagian Nomor 5 di atas (dipilih deterministik, bukan berdasarkan confidence) kebetulan semuanya kasus **Cat→Dog**, padahal kategori kesalahan yang secara jumlah lebih besar justru **Dog→Cat** (470 vs 297). Ini menunjukkan bahwa bahkan pemeriksaan kualitatif atas beberapa contoh kesalahan (Instruksi #7) bisa memberi kesan yang menyesatkan tentang kelas mana yang sebenarnya lebih sering salah, jika tidak dicek silang dengan confusion matrix lengkap.
+
+Secara umum, accuracy juga tetap berisiko menyesatkan pada skenario yang lebih ekstrem daripada dataset ini: jika jumlah gambar antar kelas benar-benar tidak seimbang (misalnya 90% Cat, 10% Dog), model yang selalu menebak "Cat" akan mencapai accuracy 90% tanpa pernah mengenali satu pun Dog (recall Dog = 0%) — accuracy tinggi tetapi model tidak berguna. Karena itu, `metrics_from_predictions()` pada `train.py` menghitung metrik tambahan yang tahan terhadap kedua bentuk ketidakseimbangan ini:
+
+- **Confusion matrix** dan **precision/recall/F1 per kelas** — mengungkap kelas mana yang lebih sering salah, seperti dianalisis di atas.
+- **Balanced accuracy** (rata-rata recall per kelas, 0,7951 pada test) — pada dataset yang jumlah kelasnya seimbang seperti ini nilainya hampir sama dengan accuracy biasa (79,51% vs 79,51%), tetapi akan menyimpang jauh dari accuracy biasa jika jumlah gambar antar kelas benar-benar tidak seimbang.
+- **Macro F1** (0,7947 pada test) — rata-rata tak berbobot F1 antar kelas, sehingga performa buruk pada satu kelas (di sini Dog) tetap tercermin dan tidak "ditenggelamkan" oleh kelas lain yang jumlah sampelnya lebih besar.
+
+Kesimpulannya, accuracy tetap berguna sebagai ringkasan satu angka, tetapi harus selalu didampingi confusion matrix dan metrik per kelas — bukan hanya saat jumlah gambar antar kelas timpang, tetapi juga seperti pada kasus ini, ketika jumlah gambar seimbang namun **kesalahan model antar kelas tidak seimbang**.
+
+---
+
 ## Nomor 5 — Analisis Kesalahan Klasifikasi
 
 Berdasarkan hasil aktual run `outputs/baseline` (arsitektur CNN 529.505 parameter, input 64×64×3, test accuracy 79,5%, macro F1 0,795).
