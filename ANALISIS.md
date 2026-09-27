@@ -88,7 +88,7 @@ Terapkan **Grad-CAM / saliency map** pada ketiga (dan sampel error lain) untuk m
 
 ## Nomor 6 — Menjaga Test Set Tidak Bocor ke Proses Pemilihan Model
 
-Ada beberapa lapisan pengamanan yang diterapkan di `train.py`:
+Ada beberapa lapisan pengamanan yang diterapkan di [train.py](train.py):
 
 1. **Split dilakukan sekali di awal, sebelum training apa pun**, menggunakan `split_dataset()` dengan seed tetap (42) dan proporsi train 70% / val 15% / test 15%, stratifikasi per kelas.
 2. **Deduplikasi berbasis pixel-hash dilakukan sebelum split** — gambar duplikat (26 ditemukan saat audit) dihapus terlebih dahulu agar gambar identik/near-identik tidak jatuh ke split berbeda (yang bisa menyebabkan kebocoran informasi via duplikasi, bukan cuma lewat test set langsung).
