@@ -43,15 +43,15 @@ Max pooling 2×2 dengan stride 2 mengambil respons maksimum tiap wilayah untuk s
 Alur aktual dalam kode, dengan urutan **C,H,W** dan tanpa dimensi batch, adalah:
 
 ```text
-RGB dan resize:       3×64×64
-Conv1 + ReLU:       16×64×64
-MaxPool1:           16×32×32
-Conv2 + ReLU:       32×32×32
-MaxPool2:           32×16×16
-Flatten:              8.192 fitur
-Dense + ReLU:            64 fitur
-Dropout:                 64 fitur, aktif saat training
-Output:                   1 logit
+RGB dan resize:         3×64×64
+Conv1 + ReLU:           16×64×64
+MaxPool1:               16×32×32
+Conv2 + ReLU:           32×32×32
+MaxPool2:               32×16×16
+Flatten:                8.192 fitur
+Dense + ReLU:           64 fitur
+Dropout:                64 fitur, aktif saat training
+Output:                 1 logit
 ```
 
 ReLU menambahkan nonlinieritas tanpa mengubah shape. Classifier menerima feature map yang diratakan, kemudian menghasilkan satu logit. Saat training, logit digunakan langsung oleh `BCEWithLogitsLoss`, yang menggabungkan sigmoid dan binary cross entropy secara numerik stabil. Saat evaluasi, sigmoid mengubah logit menjadi P(Dog); nilai ≥0,5 diprediksi Dog dan nilai lebih kecil diprediksi Cat. Lihat [dokumentasi BCEWithLogitsLoss PyTorch](https://docs.pytorch.org/docs/2.14/generated/torch.nn.BCEWithLogitsLoss.html).
