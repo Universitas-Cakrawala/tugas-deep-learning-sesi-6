@@ -14,7 +14,6 @@
 | 2 | Titanio Yudista | 24120500031 | Anggota |
 | 3 | Suci Fransisca Sisilia R | 24120500008 | Anggota |
 | 4 | Fajar Dwiharjo | 24130500010 | Anggota |
-| 5 | Rafli Ramadhan | 24130500001 | Anggota |
 
 ---
 
@@ -120,7 +119,7 @@ Berdasarkan hasil aktual dari run `outputs/baseline`, model menggunakan arsitekt
 
 Dari total 3.744 sampel test, terdapat **767 kesalahan klasifikasi** (error rate ≈20,5%, konsisten dengan test accuracy 79,5%). Sistem mengekspor tiga contoh konkret pada `outputs/baseline/misclassified_examples.json`, dan ketiganya merupakan kasus **Cat diprediksi sebagai Dog**:
 
-### 1. [`example_1.jpg`](https://github.com/Universitas-Cakrawala/tugas-deep-learning-sesi-6/blob/main/outputs/baseline/misclassified/example_1.jpg) (`Cat/10181.jpg`) - probability Dog = 0,729 (kesalahan paling percaya diri)
+### 1. [`example_1.jpg`](https://github.com/Universitas-Cakrawala/tugas-deep-learning-sesi-6/blob/main/outputs/baseline/misclassified/example_1.jpg) (`Cat/10181.jpg`) - probability Dog = 0,729 (tertinggi di antara tiga contoh ini)
 
 Pada gambar ini terdapat kucing di bagian depan, tetapi ada juga anjing yang cukup besar di latar belakang. Ada kemungkinan model menangkap fitur anjing yang secara visual cukup dominan. Karena itu, prediksi tersebut memang "salah" jika dibandingkan dengan label folder, tetapi masih cukup masuk akal jika dilihat dari isi citranya. Contoh ini menunjukkan adanya **ambiguitas label** pada skema klasifikasi biner single-label ketika sebuah citra sebenarnya berisi lebih dari satu objek. Jadi, kasus ini belum tentu murni menunjukkan kegagalan model dalam mengenali objek.
 
@@ -134,7 +133,7 @@ Pada gambar ini terdapat dua kucing dalam satu frame. Salah satunya sebagian ter
 
 ### Pola Umum
 
-Semua error di atas menghasilkan prediksi Dog dengan probabilitas yang tidak terlalu ekstrem, yaitu sekitar 0,60–0,73 dan masih cukup dekat dengan threshold 0,5. Ini menunjukkan bahwa model masih "ragu-ragu", bukan membuat kesalahan dengan tingkat keyakinan yang sangat tinggi. Hal ini juga konsisten dengan recall Cat yang lebih tinggi, yaitu 0,84, dibanding recall Dog yang 0,75 pada test set. Jadi, kesalahan Cat→Dog memang lebih jarang, tetapi tetap muncul pada beberapa kasus yang cukup ambigu seperti contoh di atas.
+Ketiga contoh di atas menghasilkan P(Dog) sekitar 0,60–0,73, relatif dekat dengan ambang klasifikasi 0,5. Angka tersebut menunjukkan jarak prediksi dari ambang, tetapi belum cukup untuk menyimpulkan tingkat keyakinan model tanpa memeriksa kalibrasi probabilitasnya. Pada seluruh test set, confusion matrix menunjukkan recall Cat 0,84 dan recall Dog 0,75; kesalahan Cat→Dog berjumlah 297, lebih sedikit daripada Dog→Cat yang berjumlah 470. Karena ketiga contoh dipilih dari awal daftar kesalahan, semuanya kebetulan termasuk kategori Cat→Dog dan tidak mewakili proporsi kedua jenis kesalahan pada test set.
 
 ### Eksperimen Lanjutan yang Diusulkan
 
@@ -146,11 +145,11 @@ Langkah berikutnya yang bisa dilakukan adalah menerapkan **Grad-CAM / saliency m
 
 Ada beberapa lapisan pengamanan yang diterapkan di [train.py](train.py). Tujuannya adalah menjaga agar test set tetap digunakan sebagai evaluasi akhir, bukan ikut memengaruhi proses pemilihan model:
 
-1. **Split dilakukan sekali di awal, sebelum training apa pun**, menggunakan `split_dataset()` dengan seed tetap (42) dan proporsi train 70% / val 15% / test 15%, dengan stratifikasi per kelas.
-2. **Deduplikasi berbasis pixel-hash dilakukan sebelum split**. Sebanyak 26 gambar duplikat ditemukan saat audit dan dihapus terlebih dahulu. Dengan cara ini, gambar identik/near-identik tidak masuk ke split yang berbeda, yang bisa menyebabkan kebocoran informasi melalui duplikasi, bukan hanya melalui test set secara langsung.
-3. **Verifikasi eksplisit anti-kebocoran**: setelah split dibuat, kode mengecek irisan `pixel_sha256` dan `path` antar ketiga split. Jika ada yang tumpang tindih, program langsung `raise RuntimeError("Kebocoran data...")`. Jadi, kebocoran tidak hanya dihindari secara prosedural, tetapi juga divalidasi secara programatik.
+1. **Split dibuat sebelum training pada setiap eksekusi**, menggunakan `split_dataset()` dengan seed tetap (42) dan proporsi train 70% / val 15% / test 15%, dengan stratifikasi per kelas.
+2. **Deduplikasi berdasarkan hash piksel RGB dilakukan sebelum split**. Sebanyak 26 duplikat dengan piksel identik ditemukan saat audit dan dihapus terlebih dahulu. Pemeriksaan ini mencegah gambar identik masuk ke split yang berbeda, tetapi belum mendeteksi *near-duplicate*, misalnya gambar yang hanya berbeda ukuran atau kompresi.
+3. **Verifikasi eksplisit antar-split**: setelah split dibuat, kode mengecek irisan `pixel_sha256` dan `path` antar ketiga split. Jika ada yang tumpang tindih, program langsung `raise RuntimeError("Kebocoran data...")`. Pemeriksaan ini memvalidasi bahwa path atau piksel RGB yang identik tidak tersebar ke beberapa split; kemiripan visual tanpa piksel identik belum tercakup.
 4. **Test loader baru dibuat setelah model final dipilih**. Selama loop training, hanya `train_loader` dan `val_loader` yang digunakan. Early stopping dan pemilihan `best_model.pt` sepenuhnya berdasarkan **validation loss**, bukan performa di test set (lihat komentar eksplisit di kode: *"Test tidak disentuh oleh loop training/early stopping"*).
-5. **Test set baru dievaluasi satu kali**, setelah checkpoint terbaik berdasarkan val loss di-load kembali. Dengan begitu, angka test accuracy (79,5%) digunakan sebagai estimasi generalisasi akhir dan tidak ikut memengaruhi pemilihan epoch/hyperparameter.
-6. **Reproducibility & audit trail**: manifest split disimpan (`splits.json`) dan di-hash (`split_manifest_sha256` di `run_config.json`). Dengan begitu, siapa pun dapat memverifikasi bahwa split yang digunakan saat training sama dengan yang dilaporkan dan tidak diubah-ubah di antara percobaan.
+5. **Dalam satu eksekusi, test set dievaluasi satu kali**, setelah checkpoint terbaik berdasarkan validation loss di-load kembali. Angka test accuracy (79,5%) dari run baseline dihasilkan setelah pemilihan epoch selesai. Kode ini tidak membuktikan bahwa hasil test tidak pernah dipakai untuk mengubah konfigurasi pada eksekusi berikutnya; disiplin tersebut tetap harus dijaga saat melakukan eksperimen lanjutan.
+6. **Jejak audit split**: manifest split disimpan (`splits.json`) dan nilai hash-nya dicatat sebagai `split_manifest_sha256` di `run_config.json`. Nilai hash dapat dipakai untuk memeriksa integritas manifest yang tersimpan atau membandingkan manifest antar-run, tetapi tidak dengan sendirinya membuktikan bahwa split tidak berubah di antara semua percobaan.
 
-Dengan kombinasi tersebut, test set tetap berfungsi sebagai estimator akhir generalisasi. Test set tidak digunakan untuk memilih arsitektur, optimizer, atau hyperparameter, karena keputusan tersebut dibuat berdasarkan performa pada validation set.
+Dalam alur satu eksekusi [train.py](train.py), test set tidak digunakan oleh loop training maupun pemilihan checkpoint. Arsitektur, optimizer, dan hyperparameter ditentukan sebelum training; pemilihan checkpoint menggunakan validation loss. Agar test set tetap menjadi evaluasi akhir, perubahan konfigurasi pada percobaan berikutnya perlu ditentukan tanpa menjadikan hasil test sebagai dasar keputusan.

@@ -1,6 +1,15 @@
 # Tugas Praktik Deep Learning Sesi 6
 
-CNN kecil untuk klasifikasi **Cat/Dog**, berdasarkan instruksi `981bb4f8-fd8f-4633-b119-bc58967e18e4_dl006.pdf`. Source code berupa `.py`; model dilatih dari awal. Jawaban pertanyaan analisis **hanya nomor 1 dan 2** ada di [ANALISIS.md](ANALISIS.md).
+CNN kecil untuk klasifikasi **Cat/Dog**, berdasarkan instruksi `981bb4f8-fd8f-4633-b119-bc58967e18e4_dl006.pdf`. Source code berupa `.py`; model dilatih dari awal. Jawaban keenam pertanyaan analisis ada di [ANALISIS.md](ANALISIS.md).
+
+## Anggota kelompok
+
+| No. | Nama lengkap | NIM / ID | Peran |
+|---:|---|---|---|
+| 1 | Tita Noviana | 24120500011 | Ketua |
+| 2 | Titanio Yudista | 24120500031 | Anggota |
+| 3 | Suci Fransisca Sisilia R | 24120500008 | Anggota |
+| 4 | Fajar Dwiharjo | 24130500010 | Anggota |
 
 ## Environment dan cara menjalankan
 
@@ -57,7 +66,7 @@ Verifikasi mencakup gambar rusak, duplikat dan label konflik, pemisahan split, n
 
 [Laporan baseline](outputs/baseline/laporan.md) memuat pemeriksaan dataset, konfigurasi, perhitungan shape/parameter dibandingkan PyTorch, metrik validation/test, kurva training, confusion matrix, dan contoh kesalahan. Hasil numerik tersedia di `metrics.json`, `history.json`, `run_config.json`, `architecture.json`, dan `audit_summary.json` dalam direktori output.
 
-Manifest `splits.json`, audit rinci `dataset_audit.json`, prediksi `test_predictions.csv`, dan `best_model.pt` hanya disimpan lokal. Untuk eksperimen baru, interpretasi visual dalam laporan otomatis perlu diisi setelah melihat preview gambar; jangan mengklaim penyebab kesalahan hanya dari probabilitas model. Pertanyaan analisis nomor 3–6 diserahkan kepada anggota kelompok lain, sedangkan artefak praktik tetap disediakan lengkap.
+Manifest `splits.json`, audit rinci `dataset_audit.json`, prediksi `test_predictions.csv`, dan `best_model.pt` hanya disimpan lokal. Untuk eksperimen baru, interpretasi visual dalam laporan otomatis perlu diisi setelah melihat preview gambar; jangan mengklaim penyebab kesalahan hanya dari probabilitas model. Jawaban keenam pertanyaan analisis tersedia di [ANALISIS.md](ANALISIS.md).
 
 Baseline pada dataset asli selesai dalam **218,94 detik**, sebanyak 8 epoch. Checkpoint epoch **7** dipilih berdasarkan validation loss; validation accuracy **79,78%**, test accuracy **79,51%**, dan test macro F1 **0,7947** pada 3.744 gambar test. Tujuh pengujian integritas pipeline berhasil.
 
